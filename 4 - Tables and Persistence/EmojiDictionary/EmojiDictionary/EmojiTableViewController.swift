@@ -35,6 +35,9 @@ class EmojiTableViewController: UITableViewController
         super.viewDidLoad()
         
         tableView.cellLayoutMarginsFollowReadableWidth = true
+        
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 44.0
     }
 
     // MARK: - Table view data source
@@ -102,4 +105,37 @@ class EmojiTableViewController: UITableViewController
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
     }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?)
+    {
+        if segue.identifier == "EditEmoji"
+        {
+            let indexpPath = tableView.indexPathForSelectedRow!
+            let emoji = emojis[indexpPath.row]
+            let navController = segue.destination as! UINavigationController
+            let addEditEmojiTableViewController = navController.topViewController as! AddEditEmojiTableViewController
+            
+            addEditEmojiTableViewController.emoji = emoji
+        }
+    }
+    
+    @IBAction func unwindToEmojiTableView(segue: UIStoryboardSegue)
+    {
+        guard segue.identifier == "saveUnwind",
+            let sourceViewController = segue.source as? AddEditEmojiTableViewController,
+            let emoji = sourceViewController.emoji else {return}
+        
+        if let selectedIndexPath = tableView.indexPathForSelectedRow
+        {
+            emojis[selectedIndexPath.row] = emoji
+            tableView.reloadRows(at: [selectedIndexPath], with: .none)
+        }
+        else
+        {
+            let newIndexPath = IndexPath(row: emojis.count, section: 0)
+            emojis.append(emoji)
+            tableView.insertRows(at: [newIndexPath], with: .automatic)
+        }
+    }
+    
 }
