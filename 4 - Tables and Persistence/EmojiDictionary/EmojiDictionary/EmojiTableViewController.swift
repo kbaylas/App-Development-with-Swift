@@ -11,30 +11,22 @@ import UIKit
 class EmojiTableViewController: UITableViewController
 {
     
-    var emojis: [Emoji] =
-    [Emoji(symbol: "😃", name: "Grinning Face", description: "A typical smiley face.", usage: "happiness"),
-     Emoji(symbol: "😕", name: "Confused Face", description: "A confused, puzzled face.", usage: "unsure what to think; displeasure."),
-     Emoji(symbol: "😍", name: "Heart Eyes", description: "A smiley face with heart for eyes", usage: "love of something; attractive"),
-     Emoji(symbol: "👮🏻‍♂️", name: "Police Officer", description: "A police officer wearing a blue cap with a gold badge.", usage: "person of authority"),
-     Emoji(symbol: "🐢", name: "Turtle", description: "A cute turtle", usage: "Something slow"),
-     Emoji(symbol: "🐘", name: "Elephant", description: "A gray elephant.", usage: "good memory"),
-     Emoji(symbol: "🍝", name: "Spaghetti", description: "A plate of spaghetti", usage: "Spaghetti"),
-     Emoji(symbol: "🎲", name: "Die", description: "A single die.", usage: "taking a risk, chance; game"),
-     Emoji(symbol: "⛺️", name: "Tent", description: "A small tent", usage: "camping"),
-     Emoji(symbol: "📚", name: "Stack of Books", description: "Three colored books stacked on each other.", usage: "homework, studying"),
-     Emoji(symbol: "💔", name: "Broken Heart", description: "A red, broken heart.", usage: "Extreme sadness"),
-     Emoji(symbol: "💤", name: "Snore", description: "Three blue z's", usage: "tired, sleepiness."),
-     Emoji(symbol: "🏁", name: "Checkered Flag", description: "A black-and-white checkered flag", usage: "completion."),
-     Emoji(symbol: "🤢", name: "Sick Face", description: "A green face which is about to puke", usage: "Extreme sickness"),
-     Emoji(symbol: "🐶", name: "Dog", description: "A cute dog", usage: "Something cute"),
-     Emoji(symbol: "✈️", name: "Plane", description: "A flying plane", usage: "Travel")
-    ]
+    var emojis: [Emoji] = []
 
     override func viewDidLoad()
     {
         super.viewDidLoad()
         
         tableView.cellLayoutMarginsFollowReadableWidth = true
+        
+        if let savedEmojis = Emoji.loadFromFile()
+        {
+            emojis = savedEmojis
+        }
+        else
+        {
+            emojis = Emoji.loadSampleEmojis()
+        }
         
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 44.0
@@ -90,6 +82,7 @@ class EmojiTableViewController: UITableViewController
         let movedEmoji = emojis.remove(at: fromIndexPath.row)
         emojis.insert(movedEmoji, at: to.row)
         tableView.reloadData()
+        Emoji.saveToFile(emojis: emojis)
     }
     
     override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle
@@ -104,6 +97,7 @@ class EmojiTableViewController: UITableViewController
             emojis.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
+        Emoji.saveToFile(emojis: emojis)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?)
@@ -136,6 +130,8 @@ class EmojiTableViewController: UITableViewController
             emojis.append(emoji)
             tableView.insertRows(at: [newIndexPath], with: .automatic)
         }
+        
+        Emoji.saveToFile(emojis: emojis)
     }
     
 }
